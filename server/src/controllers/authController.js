@@ -35,4 +35,26 @@ const registerUser = async (request, response) => {
   }
 };
 
+export const loginUser = async (request, response) => {
+  try {
+    const { email, password } = request.body;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return response.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const passwordMatches = await bcrypt.compare(password, user.password);
+
+    if (!passwordMatches) {
+      return response.status(401).json({ message: "Invalid credentials" });
+    }
+
+    return response.status(200).json({ message: "Login successful" });
+  } catch (error) {
+    console.error("User login failed:", error);
+    return response.status(500).json({ message: "User login failed" });
+  }
+};
+
 export default registerUser;
