@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
 const registerUser = async (request, response) => {
@@ -50,7 +51,13 @@ export const loginUser = async (request, response) => {
       return response.status(401).json({ message: "Invalid credentials" });
     }
 
-    return response.status(200).json({ message: "Login successful" });
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" },
+    );
+
+    return response.status(200).json({ message: "Login successful", token });
   } catch (error) {
     console.error("User login failed:", error);
     return response.status(500).json({ message: "User login failed" });
