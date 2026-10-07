@@ -4,6 +4,12 @@ import User from "../models/User.js";
 const registerUser = async (request, response) => {
   try {
     const { name, email, password } = request.body;
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      return response.status(400).json({ message: "Email already registered" });
+    }
+
     // Hash passwords so stored credentials cannot be used as plain text.
     const hashedPassword = await bcrypt.hash(password, 10);
     // Never store a password directly; a database leak could expose user accounts.
@@ -20,6 +26,10 @@ const registerUser = async (request, response) => {
       },
     });
   } catch (error) {
+    if (error.code === 11000) {
+      return response.status(400).json({ message: "Email already registered" });
+    }
+
     console.error("User registration failed:", error);
     response.status(500).json({ message: "User registration failed" });
   }
