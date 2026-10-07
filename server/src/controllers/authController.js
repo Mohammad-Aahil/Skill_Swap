@@ -1,9 +1,13 @@
+import bcrypt from "bcryptjs";
 import User from "../models/User.js";
 
 const registerUser = async (request, response) => {
   try {
     const { name, email, password } = request.body;
-    const user = new User({ name, email, password });
+    // Hash passwords so stored credentials cannot be used as plain text.
+    const hashedPassword = await bcrypt.hash(password, 10);
+    // Never store a password directly; a database leak could expose user accounts.
+    const user = new User({ name, email, password: hashedPassword });
 
     await user.save();
 
