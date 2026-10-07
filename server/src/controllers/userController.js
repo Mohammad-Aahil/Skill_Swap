@@ -27,4 +27,24 @@ const updateProfile = async (request, response) => {
   }
 };
 
+export const searchUsersBySkill = async (request, response) => {
+  try {
+    const { skill } = request.query;
+
+    if (!skill) {
+      return response.status(400).json({ message: "Skill query parameter is required" });
+    }
+
+    const users = await User.find({
+      skillsOffered: skill,
+      _id: { $ne: request.user.userId },
+    }).select("-password");
+
+    return response.status(200).json({ users });
+  } catch (error) {
+    console.error("User search failed:", error);
+    return response.status(500).json({ message: "Failed to search users" });
+  }
+};
+
 export default updateProfile;
