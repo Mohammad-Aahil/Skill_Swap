@@ -64,4 +64,19 @@ export const loginUser = async (request, response) => {
   }
 };
 
+export const getCurrentUser = async (request, response) => {
+  try {
+    const user = await User.findById(request.user.userId).select("-password");
+
+    if (!user) {
+      return response.status(404).json({ message: "User not found" });
+    }
+
+    return response.status(200).json({ user });
+  } catch (error) {
+    console.error("Fetching current user failed:", error);
+    return response.status(500).json({ message: "Failed to fetch current user" });
+  }
+};
+
 export default registerUser;
